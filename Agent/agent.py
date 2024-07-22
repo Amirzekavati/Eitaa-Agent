@@ -31,4 +31,8 @@ while True:
     messages.append(message)
     print(f"scraped message {message_number}")
 
+    message_number += 1
+
+    for message in messages:
+        print(message)
 
