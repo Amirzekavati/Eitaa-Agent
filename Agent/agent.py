@@ -14,5 +14,6 @@ while True:
     soup = BeautifulSoup(response.content, "html.parser")
 
     message_title = soup.find(class_="etme_widget_message_owner_name").find("span").get_text(strip=True)
+    message_text = soup.find(class_="etme_widget_message_text js-message_text")
 
 
