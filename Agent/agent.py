@@ -42,6 +42,15 @@ while True:
     # Extract message id
     message_id = soup.find("div", class_="etme_widget_message_wrap js-widget_message_wrap").get("id")
 
+    message={
+        "id": message_id,
+        "title": message_title,
+        "text": message_text,
+        "view": message_view,
+        "time": message_time,
+        "date": message_date
+    }
+
     print("Message Id:", message_id)
     print("Message Title:", message_title)
     print("Message Text:", message_text)
