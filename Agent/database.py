@@ -15,3 +15,8 @@ class AgentDataBase:
             self.collection.insert_one(message_dict)
 
         print("The message was upserted")
+
+    def close(self):
+        if self.client:
+            self.client.close()
+            self.client = None
