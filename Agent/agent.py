@@ -48,4 +48,3 @@ while True:
     print("Message View:", message_view)
     print("Message Time:", message_time)
     print("Message Date:", message_date)
-
