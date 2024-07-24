@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 
 
 class AgentDataBase:
@@ -23,3 +24,12 @@ class AgentDataBase:
 
     def clear_database(self):
         self.collection.delete_many()
+
+    def check_connection(self):
+        try:
+            server_status = self.database.command("serverStatus")
+            return {"Status": "success", "Message": "Database connected successfully", "Server_host": server_status["host"]}
+        except PyMongoError as e:
+            return {"status": "error", "messasge": f"Database connection failed: {e}"}
+        except Exception as e:
+            return {"status": "error", "message":f"Database error: {e}"}
