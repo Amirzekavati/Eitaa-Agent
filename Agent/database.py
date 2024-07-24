@@ -20,3 +20,6 @@ class AgentDataBase:
         if self.client:
             self.client.close()
             self.client = None
+
+    def clear_database(self):
+        self.collection.delete_many()
