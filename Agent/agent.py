@@ -7,8 +7,12 @@ class EitaaAgent:
     def __int__(self):
         self.db = AgentDataBase()
 
-    def crawl_and_insert_into_database(self, url):
+    def crawl_and_insert_into_database(self, url, start_date, end_date):
         message_number = 0
+
+        start_date = datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%S%z").date()
+        end_date = datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%S%z").date() + timedelta(
+            days=1)  # Inclusive of end date
 
         while True:
             message_number += 1
@@ -45,26 +49,10 @@ class EitaaAgent:
                 "date": message_date
             }
 
-            self.db.upsert(message)
+            message_date = datetime.strptime(message_date, "%Y-%m-%dT%H:%M:%S%z")
+            if start_date <= message_date <= end_date:
+                self.db.upsert(message)
 
-    def get_messages_between_dates(self, start_date, end_date):
-        try:
-            start_date = datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%S%z").date()
-            end_date = datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%S%z").date() + timedelta(
-                days=1)  # Inclusive of end date
-
-            query = {
-                "date": {
-                    "$gte": datetime.combine(start_date, datetime.min.time()),
-                    "$lt": datetime.combine(end_date, datetime.min.time())
-                }
-            }
-
-            messages = self.db.collection.find(query)
-            return list(messages)
-        except Exception as e:
-            print(f"An error occurred while fetching messages: {e}")
-            return []
 
 
 
