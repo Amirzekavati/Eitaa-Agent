@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 from database import AgentDataBase
@@ -8,7 +8,6 @@ class EitaaAgent:
 
     def __init__(self):
         self.db = AgentDataBase()
-
 
     def crawl_and_insert_specific_date(self, url, start_date, end_date):
         message_number = 0
@@ -40,46 +39,46 @@ class EitaaAgent:
                     span_element = owner_name_element.find("span", dir="auto")
                     if span_element:
                         message_title = span_element.get_text(strip=True)
-
+                        print(message_title)
             # Extract message text
             text_element = soup.find("div", class_="etme_widget_message_text js-message_text")
             if text_element:
                 message_text = text_element.get_text()
-                # print(message_text)
+                print(message_text)
             # Extract message view
             view_element = soup.find("span", class_="etme_widget_message_views")
             if view_element:
                 message_view = view_element.get_text()
-                # print(message_view)
+                print(message_view)
             # Extract message time
             time_element = soup.find("time", class_="time")
             if time_element:
                 message_time = time_element.get_text()
-                # print(message_time)
+                print(message_time)
             # Extract message date
             date_element = soup.find("time", class_="time")
             if date_element:
                 message_date = date_element.get("datetime")
-                # print(message_date)
+                print(message_date)
             # Extract message id
             id_element = soup.find("div", class_="etme_widget_message_wrap js-widget_message_wrap")
             if id_element:
                 message_id = id_element.get("id")
-                # print(message_id)
+                print(message_id)
             # Extract the group or channel name
             header_element = soup.find("div", class_="etme_channel_info_header_title")
             if header_element:
                 span_element = header_element.find("span", dir="auto")
                 if span_element:
                     name = span_element.get_text(strip=True)
-                    # print(name)
+                    print(name)
             # Extract the username
             header_element = soup.find("div", class_="etme_channel_info_header_username")
             if header_element:
                 a_element = header_element.find("a", dir="auto")
                 if a_element:
                     username = a_element.get_text()
-                    # print(username)
+                    print(username)
 
             message = {
                 "id": message_id,
@@ -99,4 +98,4 @@ class EitaaAgent:
 
 if __name__ == '__main__':
     x = EitaaAgent()
-    x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori/", "2018-03-06", "2018-03-09")
+    x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori/", "2018-03-06", "2018-03-21")
