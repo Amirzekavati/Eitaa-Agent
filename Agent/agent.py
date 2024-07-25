@@ -49,7 +49,7 @@ class EitaaAgent:
                 "date": message_date
             }
 
-            message_date = datetime.strptime(message_date, "%Y-%m-%dT%H:%M:%S%z")
+            message_date = datetime.strptime(message_date, "%Y-%m-%dT%H:%M:%S%z").date()
             if start_date <= message_date <= end_date:
                 self.db.upsert(message)
 
