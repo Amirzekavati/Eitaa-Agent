@@ -5,8 +5,10 @@ from database import AgentDataBase
 
 
 class EitaaAgent:
-    def __int__(self):
+
+    def __init__(self):
         self.db = AgentDataBase()
+
 
     def crawl_and_insert_specific_date(self, url, start_date, end_date):
         message_number = 0
@@ -93,6 +95,7 @@ class EitaaAgent:
                 message_date = datetime.strptime(message_date, "%Y-%m-%dT%H:%M:%S%z").date()
                 if start_date <= message_date <= end_date:
                     self.db.upsert(message)
+
 
 if __name__ == '__main__':
     x = EitaaAgent()
