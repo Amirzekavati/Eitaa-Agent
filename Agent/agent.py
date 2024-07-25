@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 from database import AgentDataBase
@@ -6,7 +7,7 @@ class EitaaAgent:
     def __int__(self):
         self.db = AgentDataBase()
 
-    def crawl_and_insert(self, url):
+    def crawl_and_insert_into_database(self, url):
         message_number = 0
 
         while True:
@@ -18,22 +19,11 @@ class EitaaAgent:
 
             soup = BeautifulSoup(response.content, "html.parser")
 
-            # Initialize variables to None
-            message_title = None
-            message_text = None
-            message_view = None
-            message_time = None
-            message_date = None
-            message_id = None
-
             # Extract message title
             author_element = soup.find("div", class_="etme_widget_message_author accent_color")
-            if author_element:
-                owner_name_element = author_element.find("a", class_="etme_widget_message_owner_name")
-                if owner_name_element:
-                    span_element = owner_name_element.find("span", dir="auto")
-                    if span_element:
-                        message_title = span_element.get_text(strip=True)
+            owner_name_element = author_element.find("a", class_="etme_widget_message_owner_name")
+            span_element = owner_name_element.find("span", dir="auto")
+            message_title = span_element.get_text(strip=True)
 
             # Extract message text
             message_text = soup.find("div", class_="etme_widget_message_text js-message_text").get_text()
@@ -57,8 +47,24 @@ class EitaaAgent:
 
             self.db.upsert(message)
 
+    def get_messages_between_dates(self, start_date, end_date):
+        try:
+            start_date = datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%S%z").date()
+            end_date = datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%S%z").date() + timedelta(
+                days=1)  # Inclusive of end date
 
+            query = {
+                "date": {
+                    "$gte": datetime.combine(start_date, datetime.min.time()),
+                    "$lt": datetime.combine(end_date, datetime.min.time())
+                }
+            }
 
+            messages = self.db.collection.find(query)
+            return list(messages)
+        except Exception as e:
+            print(f"An error occurred while fetching messages: {e}")
+            return []
 
 
 
