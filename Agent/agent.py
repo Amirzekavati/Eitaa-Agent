@@ -2,6 +2,8 @@ import time
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
+import datetime
+
 from database import AgentDataBase
 
 
@@ -96,16 +98,8 @@ class EitaaAgent:
                 if start_date <= message_date <= end_date:
                     self.db.upsert(message)
 
-    def crawl_from_last(self, url, count):
-        response = requests.get(url)
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        posts = soup.find_all('div', class_='etme_widget_message_text js-message_text')
-        print(len(posts))
 
 if __name__ == '__main__':
     x = EitaaAgent()
-    x.crawl_from_last("https://eitaa.com/akhbarefori/", count=1000)
-    # x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori/", "2018-03-06", "2018-03-21")
+    messages = x.crawl_from_last("https://eitaa.com/akhbarefori", 100)
+    print(f"Number of messages retrieved: {len(messages)}")
