@@ -33,6 +33,8 @@ class EitaaAgent:
             message_id = None
             name = None
             username = None
+            photos = []
+            videos = []
 
             # Extract message title
             author_element = soup.find("div", class_="etme_widget_message_author accent_color")
@@ -83,6 +85,22 @@ class EitaaAgent:
                     username = a_element.get_text()
                     print(username)
 
+            # Extract photos
+            photo_elements = soup.find_all("a", class_="etme_widget_message_photo_wrap")
+            for photo_element in photo_elements:
+                photo_url = photo_element.get("href")
+                if photo_url:
+                    photos.append(photo_url)
+                    print(f"Photo URL: {photo_url}")
+
+            # Extract videos
+            video_elements = soup.find_all("a", class_="message_video_play js-message_video_play")
+            for video_element in video_elements:
+                video_url = video_element.get("href")
+                if video_url:
+                    videos.append(video_url)
+                    print(f"Video URL: {video_url}")
+
             message = {
                 "id": message_id,
                 "title": message_title,
@@ -101,5 +119,4 @@ class EitaaAgent:
 
 if __name__ == '__main__':
     x = EitaaAgent()
-    messages = x.crawl_from_last("https://eitaa.com/akhbarefori", 100)
-    print(f"Number of messages retrieved: {len(messages)}")
+    x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori")
