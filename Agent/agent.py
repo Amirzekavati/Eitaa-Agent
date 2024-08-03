@@ -31,7 +31,8 @@ class EitaaAgent:
                 continue
 
             message_title = message_element[0].xpath(
-                './/div[@class="etme_widget_message_author accent_color"]//a[@class="etme_widget_message_owner_name"]//span[@dir="auto"]/text()')
+                './/div[@class="etme_widget_message_author accent_color"]'
+                '//a[@class="etme_widget_message_owner_name"]//span[@dir="auto"]/text()')
             # print(message_title)
             message_text = message_element[0].xpath('.//div[@class="etme_widget_message_text js-message_text"]/text()')
             # print(message_text)
@@ -77,4 +78,3 @@ class EitaaAgent:
 if __name__ == '__main__':
     agent = EitaaAgent()
     agent.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori", "2018-03-13", "2018-03-20")
-
