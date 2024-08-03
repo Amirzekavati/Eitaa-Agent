@@ -73,4 +73,5 @@ class EitaaAgent:
 
 if __name__ == '__main__':
     agent = EitaaAgent()
-    agent.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori", "2018-03-13", "2018-04-06")
+    agent.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori", "2018-03-13", "2018-03-20")
+
