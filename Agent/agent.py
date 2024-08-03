@@ -1,11 +1,7 @@
-import time
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
-import datetime
-
 from database import AgentDataBase
-
 
 class EitaaAgent:
 
@@ -18,7 +14,7 @@ class EitaaAgent:
         end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
         while True:
             message_number += 1
-            url = f"{url}{message_number}"
+            url = f"{url}/{message_number}"
             response = requests.get(url)
             if response.status_code != 200:
                 break
@@ -33,8 +29,6 @@ class EitaaAgent:
             message_id = None
             name = None
             username = None
-            photos = []
-            videos = []
 
             # Extract message title
             author_element = soup.find("div", class_="etme_widget_message_author accent_color")
@@ -44,62 +38,46 @@ class EitaaAgent:
                     span_element = owner_name_element.find("span", dir="auto")
                     if span_element:
                         message_title = span_element.get_text(strip=True)
-                        print(message_title)
+                        # print(message_title)
             # Extract message text
             text_element = soup.find("div", class_="etme_widget_message_text js-message_text")
             if text_element:
                 message_text = text_element.get_text()
-                print(message_text)
+                # print(message_text)
             # Extract message view
             view_element = soup.find("span", class_="etme_widget_message_views")
             if view_element:
                 message_view = view_element.get_text()
-                print(message_view)
+                # print(message_view)
             # Extract message time
             time_element = soup.find("time", class_="time")
             if time_element:
                 message_time = time_element.get_text()
-                print(message_time)
+                # print(message_time)
             # Extract message date
             date_element = soup.find("time", class_="time")
             if date_element:
                 message_date = date_element.get("datetime")
-                print(message_date)
+                # print(message_date)
             # Extract message id
             id_element = soup.find("div", class_="etme_widget_message_wrap js-widget_message_wrap")
             if id_element:
                 message_id = id_element.get("id")
-                print(message_id)
+                # print(message_id)
             # Extract the group or channel name
             header_element = soup.find("div", class_="etme_channel_info_header_title")
             if header_element:
                 span_element = header_element.find("span", dir="auto")
                 if span_element:
                     name = span_element.get_text(strip=True)
-                    print(name)
+                    # print(name)
             # Extract the username
             header_element = soup.find("div", class_="etme_channel_info_header_username")
             if header_element:
                 a_element = header_element.find("a", dir="auto")
                 if a_element:
                     username = a_element.get_text()
-                    print(username)
-
-            # Extract photos
-            photo_elements = soup.find_all("a", class_="etme_widget_message_photo_wrap")
-            for photo_element in photo_elements:
-                photo_url = photo_element.get("href")
-                if photo_url:
-                    photos.append(photo_url)
-                    print(f"Photo URL: {photo_url}")
-
-            # Extract videos
-            video_elements = soup.find_all("a", class_="message_video_play js-message_video_play")
-            for video_element in video_elements:
-                video_url = video_element.get("href")
-                if video_url:
-                    videos.append(video_url)
-                    print(f"Video URL: {video_url}")
+                    # print(username)
 
             message = {
                 "id": message_id,
@@ -117,6 +95,98 @@ class EitaaAgent:
                     self.db.upsert(message)
 
 
+
+    # def crawl_from_last(self, url, count):
+    #     response = requests.get(url)
+    #     if response.status_code != 200:
+    #         return
+    #     soup = BeautifulSoup(response.content, "html.parser")
+    #     id_element = soup.find_all("div", class_="etme_widget_message_wrap js-widget_message_wrap")
+    #     message_id = None
+    #     if id_element:
+    #         message_id = int(id_element[-1].get("id"))
+    #         print(message_id)
+    #     number = 0
+    #     while number != count:
+    #         if message_id is None:
+    #             break
+    #         number += 1
+    #         print(message_id, number)
+    #         response = requests.get(f"{url}{message_id}")
+    #         if response.status_code != 200:
+    #             break
+    #
+    #         soup = BeautifulSoup(response.content, "html.parser")
+    #
+    #         print(response.content)
+    #
+    #         message_title = None
+    #         message_text = None
+    #         message_time = None
+    #         message_view = None
+    #         message_date = None
+    #         name = None
+    #         username = None
+    #
+    #         # Extract message title
+    #         author_element = soup.find("div", class_="etme_widget_message_author")
+    #         if author_element:
+    #             owner_name_element = author_element.find("a", class_="etme_widget_message_owner_name")
+    #             if owner_name_element:
+    #                 span_element = owner_name_element.find("span", dir="auto")
+    #                 if span_element:
+    #                     message_title = span_element.get_text(strip=True)
+    #                     print(message_title)
+    #         # Extract message text
+    #         text_element = soup.find("div", class_="etme_widget_message_text")
+    #         if text_element:
+    #             message_text = text_element.get_text()
+    #             print(message_text)
+    #         # Extract message view
+    #         view_element = soup.find("span", class_="etme_widget_message_views")
+    #         if view_element:
+    #             message_view = view_element.get_text()
+    #             print(message_view)
+    #         # Extract message time
+    #         time_element = soup.find("time", class_="time")
+    #         if time_element:
+    #             message_time = time_element.get_text()
+    #             print(message_time)
+    #         # Extract message date
+    #         date_element = soup.find("time", class_="time")
+    #         if date_element:
+    #             message_date = date_element.get("datetime")
+    #             print(message_date)
+    #
+    #         # Extract the group or channel name
+    #         header_element = soup.find("div", class_="etme_channel_info_header_title")
+    #         if header_element:
+    #             span_element = header_element.find("span", dir="auto")
+    #             if span_element:
+    #                 name = span_element.get_text(strip=True)
+    #                 print(name)
+    #         # Extract the username
+    #         header_element = soup.find("div", class_="etme_channel_info_header_username")
+    #         if header_element:
+    #             a_element = header_element.find("a", dir="auto")
+    #             if a_element:
+    #                 username = a_element.get_text()
+    #                 print(username)
+    #
+    #         message = {
+    #             "id": message_id,
+    #             "title": message_title,
+    #             "text": message_text,
+    #             "view": message_view,
+    #             "time": message_time,
+    #             "date": message_date,
+    #             "name": name,
+    #             "username": username
+    #         }
+    #         message_id -= 1
+    #         self.db.upsert(message)
+
+
 if __name__ == '__main__':
     x = EitaaAgent()
-    x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori")
+    x.crawl_and_insert_specific_date("https://eitaa.com/akhbarefori", "2018-03-13", "2018-03-14")
