@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import requests
 from lxml import html
 from database import AgentDataBase
+from bs4 import BeautifulSoup
 
 class EitaaAgent:
 
@@ -18,12 +19,13 @@ class EitaaAgent:
             message_number += 1
             message_url = f"{url}/{message_number}"
             response = requests.get(message_url)
+
             if response.status_code == 404:
                 print("Not Found!")
                 message_number -= 1
                 continue
             if response.status_code != 200:
-                print("Can not access to web")
+                print("Cannot access the web")
                 message_number -= 1
                 break
 
@@ -34,7 +36,7 @@ class EitaaAgent:
             message_xpath = f'//*[@id="{message_number}"]'
             message_element = tree.xpath(message_xpath)
 
-            # if we don't have content go to next message
+            # if we don't have content go to the next message
             if not message_element:
                 continue
 
@@ -86,13 +88,43 @@ class EitaaAgent:
                 "username": username[0] if username else None
             }
 
-            # check for date
+            # checking date
             if message["date"]:
                 message_date_obj = datetime.strptime(message["date"], "%Y-%m-%dT%H:%M:%S%z").date()
                 if start_date <= message_date_obj <= end_date:
                     self.db.upsert(message)
 
+    def crawl_from_last(self,url, count):
+        response = requests.get(url)
+        while response.status_code != 200:
+            response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        messages = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
+        number = 0
+        message_id = messages[-1].get('id')
+        print(message_id)
+        # while number != count:
+        #     response = requests.get(f"{url}/{message_id}")
+        #     soup = BeautifulSoup(response.content, 'html.parser')
+        #     message_element = soup.find('div', id=f"{message_id}")
+        #     message_author_element = message_element.find('div', class_="etme_widget_message_author accent_color")
+        #     message_owner_name = message_author_element.find('a', class_="etme_widget_message_owner_name")
+        #     message_text = message_owner_name.find('span', dir="auto").get_text(strip=True)
+        #     print(message_text)
+        #     break
+            # message = {
+            #     "id": message_id,
+            #     "title":
+            #     "text": message_text[0] if message_element else None,
+            #     "view": message_view[0] if message_element else None,
+            #     "time": message_time,
+            #     "date": message_date[0] if message_element else None,
+            #     "name": name[0] if name else None,
+            #     "username": username[0] if username else None
+            # }
+        
 
 if __name__ == '__main__':
     agent = EitaaAgent()
-    agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
+    # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
+    agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
