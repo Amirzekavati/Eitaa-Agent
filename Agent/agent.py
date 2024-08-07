@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 import requests
 from lxml import html
@@ -10,6 +11,7 @@ class EitaaAgent:
     def __init__(self):
         self.db = AgentDataBase()
         self.time_offset = timedelta(hours=3, minutes=30)  # use to adjust the time
+        self.proxies = []
 
     def crawl_insert_specific_date(self, url, start_date, end_date):
         message_number = 0
@@ -19,14 +21,20 @@ class EitaaAgent:
         while True:
             message_number += 1
             message_url = f"{url}/{message_number}"
-            response = requests.get(message_url)
+
+            if self.proxies is None:
+                break
+
+            # self.proxies = get_proxies()
+            response = requests.get(message_url, random.choice(self.proxies))
 
             if response.status_code == 404:
                 print("Not Found!")
                 message_number -= 1
                 continue
+
             if response.status_code != 200:
-                print("Cannot access the web")
+                print("Can not access the web")
                 message_number -= 1
                 break
 
@@ -43,9 +51,12 @@ class EitaaAgent:
 
             # control date for when over
             message_date = message_element[0].xpath('.//time[@class="time"]/@datetime')
+            if datetime.strptime(message_date[0], "%Y-%m-%dT%H:%M:%S%z").date() < start_date:
+                print("The date is less")
+                continue
             if datetime.strptime(message_date[0], "%Y-%m-%dT%H:%M:%S%z").date() > end_date:
                 print("The date is over")
-                break
+                return
 
             # Extract the message_title
             message_title = message_element[0].xpath(
@@ -98,9 +109,15 @@ class EitaaAgent:
 
     def crawl_from_last(self, url, count):
         response = requests.get(url)
+
+        if response.status_code == 404:
+            print("Not Found! Maybe the internet is unstable")
+            self.crawl_from_last(url, count)
+
         if response.status_code != 200:
             print("The connection has a problem!")
             return
+
         soup = BeautifulSoup(response.content, 'html.parser')
         messages = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
         number = 0
@@ -108,8 +125,12 @@ class EitaaAgent:
         while number != count:
             response = requests.get(f"{url}/{message_id}")
 
+            if response.status_code == 404:
+                print("Not Found! Maybe the internet is unstable")
+                continue
+
             if response.status_code != 200:
-                print("The connection has a problem!")
+                print("Can not access the web")
                 return
 
             print(f"ID: {message_id}")
@@ -122,6 +143,7 @@ class EitaaAgent:
             if message_element is None:
                 message_id = str(int(message_id) - 1)
                 continue
+
             # Extract the title of message
             message_author_element = message_element.find('div', class_="etme_widget_message_author accent_color")
             message_owner_name = message_author_element.find('a', class_="etme_widget_message_owner_name")
