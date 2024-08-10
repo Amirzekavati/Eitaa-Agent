@@ -11,6 +11,7 @@ class EitaaAgent:
         self.db = AgentDataBase()
         self.time_offset = timedelta(hours=3, minutes=30)  # use to adjust the time
 
+
     def crawl_insert_specific_date(self, url, start_date, end_date):
         message_number = 0
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -70,7 +71,7 @@ class EitaaAgent:
             # Adjust datetime to match the displayed time (subtract offset)
             message_date_obj = datetime.strptime(message_date[0], "%Y-%m-%dT%H:%M:%S%z") if message_date else None
             adjusted_time_obj = (
-                        datetime.combine(message_date_obj.date(), displayed_time_obj) + self.time_offset).time()
+                    datetime.combine(message_date_obj.date(), displayed_time_obj) + self.time_offset).time()
             adjusted_time = adjusted_time_obj.strftime("%H:%M")
             message_time = adjusted_time
 
@@ -99,6 +100,7 @@ class EitaaAgent:
                 message_date_obj = datetime.strptime(message["date"], "%Y-%m-%dT%H:%M:%S%z").date()
                 if start_date <= message_date_obj <= end_date:
                     self.db.upsert(message)
+
 
     def crawl_from_last(self, url, count):
         response = requests.get(url)
@@ -196,5 +198,5 @@ class EitaaAgent:
 
 if __name__ == '__main__':
     agent = EitaaAgent()
-    # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
-    agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
+    # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2013-08-04", "2020-08-10")
+    # agent.crawl_from_last("https://eitaa.com/akhbarefori", 10)
