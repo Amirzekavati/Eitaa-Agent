@@ -324,4 +324,4 @@ if __name__ == '__main__':
     agent = EitaaAgent()
     # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
     # agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
-    agent.crawl_by_id("https://eitaa.com/akhbarefori", 282367)
+    agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
