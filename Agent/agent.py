@@ -78,7 +78,7 @@ class EitaaAgent:
             # Adjust datetime to match the displayed time (subtract offset)
             message_date_obj = datetime.strptime(message_date[0], "%Y-%m-%dT%H:%M:%S%z") if message_date else None
             adjusted_time_obj = (
-                        datetime.combine(message_date_obj.date(), displayed_time_obj) + self.time_offset).time()
+                    datetime.combine(message_date_obj.date(), displayed_time_obj) + self.time_offset).time()
             adjusted_time = adjusted_time_obj.strftime("%H:%M")
             message_time = adjusted_time
 
@@ -129,7 +129,7 @@ class EitaaAgent:
             if not self.proxies:
                 print('The proxies are not set!')
                 break
-
+            #
             response = requests.get(f"{url}/{message_id}", random.choice(self.proxies))
 
             if response.status_code == 404:
@@ -160,6 +160,14 @@ class EitaaAgent:
             # Extract the text of message
             message_text = message_element.find('div', class_="etme_widget_message_text js-message_text").get_text()
             print(f"Text: {message_text}")
+
+            # Extract the A tags in text of message
+            # Extract the username of some channels in Eitaa
+            a_tags = message_element.find('div', class_="etme_widget_message_text js-message_text").find_all('a',
+                                                                                                             dir="auto")
+            for tag in a_tags:
+                if '@' in tag.get_text():
+                    self.db.upsert_username(tag.get_text())
 
             # Extract the view of message
             message_info = message_element.find('div', class_="etme_widget_message_info short js-message_info")
@@ -296,5 +304,5 @@ class EitaaAgent:
 if __name__ == '__main__':
     agent = EitaaAgent()
     # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
-    # agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
-    agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
+    agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
+    # agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
