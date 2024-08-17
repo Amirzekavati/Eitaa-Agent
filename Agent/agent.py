@@ -2,6 +2,7 @@ import random
 from datetime import datetime, timedelta
 import requests
 from lxml import html
+
 from database import AgentDataBase
 from bs4 import BeautifulSoup
 
@@ -66,6 +67,15 @@ class EitaaAgent:
 
             # Extract the message_text
             message_text = message_element[0].xpath('.//div[@class="etme_widget_message_text js-message_text"]/text()')
+
+            # Extract the a_tags in text
+            soup = BeautifulSoup(response.content, 'html.parser')
+            element = soup.find(id=f"{message_number}")
+            message_text_element = element.find('div', class_="etme_widget_message_text js-message_text")
+            a_tags = message_text_element.find_all('a', dir="auto")
+            for tag in a_tags:
+                if '@' in tag.get_text():
+                    self.db.upsert_username(tag.get_text())
 
             # Extract the message_view
             message_view = message_element[0].xpath('.//span[@class="etme_widget_message_views"]/text()')
@@ -164,7 +174,7 @@ class EitaaAgent:
             # Extract the A tags in text of message
             # Extract the username of some channels in Eitaa
             a_tags = message_element.find('div', class_="etme_widget_message_text js-message_text").find_all('a',
-                                                                                                             dir="auto")
+                                                                                            dir="auto")
             for tag in a_tags:
                 if '@' in tag.get_text():
                     self.db.upsert_username(tag.get_text())
@@ -226,8 +236,8 @@ class EitaaAgent:
             if not self.proxies:
                 print('The proxies are not set!')
                 break
-
-            response = requests.get(message_url, random.choice(self.proxies))
+            response = requests.get(message_url, random.choice(self.proxies)
+)
 
             if response.status_code == 404:
                 print("Not Found!")
@@ -260,6 +270,15 @@ class EitaaAgent:
 
             # Extract the message_text
             message_text = message_element[0].xpath('.//div[@class="etme_widget_message_text js-message_text"]/text()')
+
+            # Extract the a_tags in text
+            soup = BeautifulSoup(response.content, 'html.parser')
+            element = soup.find(id=f"{message_number}")
+            message_text_element = element.find('div', class_="etme_widget_message_text js-message_text")
+            a_tags = message_text_element.find_all('a', dir="auto")
+            for tag in a_tags:
+                if '@' in tag.get_text():
+                    self.db.upsert_username(tag.get_text())
 
             # Extract the message_view
             message_view = message_element[0].xpath('.//span[@class="etme_widget_message_views"]/text()')
@@ -297,12 +316,12 @@ class EitaaAgent:
             }
 
             self.db.upsert(message)
-            if id_message == message_number:
+            if id_message >= message_number:
                 break
 
 
 if __name__ == '__main__':
     agent = EitaaAgent()
     # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
-    agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
-    # agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
+    # agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
+    agent.crawl_by_id("https://eitaa.com/akhbarefori", 282367)
