@@ -75,7 +75,7 @@ class EitaaAgent:
             a_tags = message_text_element.find_all('a', dir="auto")
             for tag in a_tags:
                 if '@' in tag.get_text():
-                    self.db.upsert_username(tag.get_text())
+                    self.db.upsert_link(tag.get_text())
 
             # Extract the message_view
             message_view = message_element[0].xpath('.//span[@class="etme_widget_message_views"]/text()')
@@ -174,10 +174,10 @@ class EitaaAgent:
             # Extract the A tags in text of message
             # Extract the username of some channels in Eitaa
             a_tags = message_element.find('div', class_="etme_widget_message_text js-message_text").find_all('a',
-                                                                                            dir="auto")
+                                                                                                             dir="auto")
             for tag in a_tags:
                 if '@' in tag.get_text():
-                    self.db.upsert_username(tag.get_text())
+                    self.db.upsert_link(tag.get_text())
 
             # Extract the view of message
             message_info = message_element.find('div', class_="etme_widget_message_info short js-message_info")
@@ -236,8 +236,7 @@ class EitaaAgent:
             if not self.proxies:
                 print('The proxies are not set!')
                 break
-            response = requests.get(message_url, random.choice(self.proxies)
-)
+            response = requests.get(message_url, random.choice(self.proxies))
 
             if response.status_code == 404:
                 print("Not Found!")
@@ -278,7 +277,7 @@ class EitaaAgent:
             a_tags = message_text_element.find_all('a', dir="auto")
             for tag in a_tags:
                 if '@' in tag.get_text():
-                    self.db.upsert_username(tag.get_text())
+                    self.db.upsert_link(tag.get_text())
 
             # Extract the message_view
             message_view = message_element[0].xpath('.//span[@class="etme_widget_message_views"]/text()')
@@ -319,9 +318,44 @@ class EitaaAgent:
             if id_message >= message_number:
                 break
 
+    @staticmethod
+    def get_last_message_id(url):
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        last_message_element = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
+        return int(last_message_element[-1]['id'])
+
+    def find_channels_username(self, url):
+        message_number = 1
+        last_id = self.get_last_message_id(url)
+        # Parse the HTML
+        response = requests.get(f"{url}/{message_number}")
+        soup = BeautifulSoup(response.content, 'html.parser')
+        message_element = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
+        while message_number <= last_id:
+            # Find all <a> tags with href attribute starting with "https://eitaa.com/"
+            links = soup.find_all('a', href=True)
+            filtered_links = [link['href'] for link in links if link['href'].startswith('https://eitaa.com/')]
+
+            # Print the filtered links
+            for link in filtered_links:
+                self.db.upsert_link(link)
+
+            # print(message_element[-1]['id'])
+            message_number = int(message_element[-1]['id'])
+            if message_element[-1]['id'] == last_id:
+                break
+
+            message_number += 1
+            response = requests.get(f"{url}/{message_number}")
+            soup = BeautifulSoup(response.content, 'html.parser')
+            message_element = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
+
 
 if __name__ == '__main__':
     agent = EitaaAgent()
     # agent.crawl_insert_specific_date("https://eitaa.com/akhbarefori", "2024-08-04", "2024-08-04")
     # agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
-    agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
+    # agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
+    # agent.get_last_message_id("https://eitaa.com/sadbartar")
+    agent.find_channels_username("https://eitaa.com/sadbartar")

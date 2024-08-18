@@ -8,14 +8,14 @@ class AgentDataBase:
         self.database = self.client[db_name]
         self.collection = self.database[collection_name]
 
-    def upsert_username(self, username, collection_name='username'):
+    def upsert_link(self, link, collection_name='link'):
         collection = self.database[collection_name]
-        existing_doc = collection.find_one({'username': username})
+        existing_doc = collection.find_one({'link': link})
         if existing_doc:
-            print("replace the username")
+            print("replace the link")
         else:
-            collection.insert_one({'username': username})
-            print("insert the username")
+            collection.insert_one({'link': link})
+            print("insert the link")
 
     def upsert(self, message_dict):
         existing_doc = self.collection.find_one({'id': message_dict['id']})
