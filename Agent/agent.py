@@ -174,7 +174,7 @@ class EitaaAgent:
             # Extract the A tags in text of message
             # Extract the username of some channels in Eitaa
             a_tags = message_element.find('div', class_="etme_widget_message_text js-message_text").find_all('a',
-                                                                                            dir="auto")
+                                                                                                             dir="auto")
             for tag in a_tags:
                 if '@' in tag.get_text():
                     self.db.upsert_username(tag.get_text())
@@ -236,8 +236,7 @@ class EitaaAgent:
             if not self.proxies:
                 print('The proxies are not set!')
                 break
-            response = requests.get(message_url, random.choice(self.proxies)
-)
+            response = requests.get(message_url, random.choice(self.proxies))
 
             if response.status_code == 404:
                 print("Not Found!")
