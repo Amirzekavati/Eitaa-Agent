@@ -325,7 +325,7 @@ class EitaaAgent:
         last_message_element = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
         return int(last_message_element[-1]['id'])
 
-    def find_channels_username(self, url):
+    def find_channels_link(self, url):
         message_number = 1
         last_id = self.get_last_message_id(url)
         # Parse the HTML
@@ -358,4 +358,4 @@ if __name__ == '__main__':
     # agent.crawl_from_last("https://eitaa.com/akhbarefori", 100)
     # agent.crawl_by_id("https://eitaa.com/akhbarefori", 100)
     # agent.get_last_message_id("https://eitaa.com/sadbartar")
-    agent.find_channels_username("https://eitaa.com/sadbartar")
+    agent.find_channels_link("https://eitaa.com/sadbartar")
