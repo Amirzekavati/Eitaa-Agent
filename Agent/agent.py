@@ -326,7 +326,9 @@ class EitaaAgent:
         return int(last_message_element[-1]['id'])
 
     def find_channels_link(self, url):
-        message_number = 1
+        self.db.check_empty_collection('last_message_crawl')
+        document = self.db.database['last_message_crawl'].find_one()
+        message_number = int(document.get('id'))
         last_id = self.get_last_message_id(url)
         # Parse the HTML
         response = requests.get(f"{url}/{message_number}")
@@ -343,7 +345,10 @@ class EitaaAgent:
 
             # print(message_element[-1]['id'])
             message_number = int(message_element[-1]['id'])
-            if message_element[-1]['id'] == last_id:
+            # print(f"static var: {document.get('id')}")
+            # print("message number: " + str(message_number))
+            if message_number == last_id:
+                self.db.database['last_message_crawl'].update_one({}, {"$set": {"id": message_number}})
                 break
 
             message_number += 1

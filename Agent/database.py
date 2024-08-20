@@ -8,6 +8,12 @@ class AgentDataBase:
         self.database = self.client[db_name]
         self.collection = self.database[collection_name]
 
+    def check_empty_collection(self, collection_name):
+        collection = self.database[collection_name]
+        count = collection.count_documents({})
+        if count == 0:
+            collection.insert_one({"id": 1})
+
     def upsert_link(self, link, collection_name='link'):
         collection = self.database[collection_name]
         existing_doc = collection.find_one({'link': link})
