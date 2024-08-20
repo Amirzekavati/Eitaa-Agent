@@ -332,7 +332,7 @@ class EitaaAgent:
         response = requests.get(f"{url}/{message_number}")
         soup = BeautifulSoup(response.content, 'html.parser')
         message_element = soup.find_all('div', class_="etme_widget_message_wrap js-widget_message_wrap")
-        while message_number <= last_id:
+        while True:
             # Find all <a> tags with href attribute starting with "https://eitaa.com/"
             links = soup.find_all('a', href=True)
             filtered_links = [link['href'] for link in links if link['href'].startswith('https://eitaa.com/')]
