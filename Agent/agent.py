@@ -343,10 +343,7 @@ class EitaaAgent:
             for link in filtered_links:
                 self.db.upsert_link(link)
 
-            # print(message_element[-1]['id'])
             message_number = int(message_element[-1]['id'])
-            # print(f"static var: {document.get('id')}")
-            # print("message number: " + str(message_number))
             if message_number == last_id:
                 self.db.database['last_message_crawl'].update_one({}, {"$set": {"id": message_number}})
                 break
